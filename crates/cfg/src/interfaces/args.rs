@@ -1,7 +1,7 @@
 use clap::Parser;
 use derive_builder::Builder;
 use eyre::Result;
-use heimdall_common::ether::bytecode::get_bytecode_from_target;
+use heimdall_common::ether::bytecode::{from_bytecode,get_bytecode_from_target};
 use heimdall_config::parse_url_arg;
 
 /// Arguments for the CFG subcommand
@@ -15,6 +15,9 @@ pub struct CfgArgs {
     /// The target to generate a Cfg for, either a file, bytecode, contract address, or ENS name.
     #[clap(required = true)]
     pub target: String,
+
+
+    pub bytecode: Option<String>,
 
     /// The RPC provider to use for fetching target bytecode.
     /// This can be an explicit URL or a reference to a MESC endpoint.
@@ -46,10 +49,13 @@ pub struct CfgArgs {
 impl CfgArgs {
     /// Get the bytecode for the target
     pub async fn get_bytecode(&self) -> Result<Vec<u8>> {
-        get_bytecode_from_target(&self.target, &self.rpc_url).await
+        if let Some(bytecode) = &self.bytecode {
+            from_bytecode(bytecode)
+        } else {
+            get_bytecode_from_target(&self.target,&self.rpc_url).await
+        }
     }
 }
-
 impl CfgArgsBuilder {
     /// Create a new instance of the [`CfgArgsBuilder`]
     pub fn new() -> Self {
@@ -61,6 +67,7 @@ impl CfgArgsBuilder {
             output: Some(String::new()),
             name: Some(String::new()),
             timeout: Some(10000),
+            bytecode:None
         }
     }
 }
