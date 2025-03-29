@@ -9,11 +9,6 @@ use std::fs;
 use tracing::debug;
 
 /// Given a target, return bytecode of the target.
-
-pub fn from_bytecode(bytecode: &str) -> Result<Vec<u8>> {
-    decode_hex(bytecode)
-}
-
 pub async fn get_bytecode_from_target(target: &str, rpc_url: &str) -> Result<Vec<u8>> {
     // If the target is an address, fetch the bytecode from the RPC provider.
     if let Ok(address) = target.parse::<Address>() {
@@ -86,7 +81,7 @@ mod tests {
         let bytecode = alloy::primitives::Bytes::from_hex(
             "0x604060807f2222222222222222222222222222222222222222222222222222222222222222",
         )
-            .expect("invalid");
+        .expect("invalid");
         let pruned = remove_pushbytes_from_bytecode(bytecode).unwrap();
         assert_eq!(
             pruned.to_vec(),
@@ -120,8 +115,8 @@ mod tests {
             "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001",
             &rpc_url,
         )
-            .await
-            .expect("failed to get bytecode from target");
+        .await
+        .expect("failed to get bytecode from target");
 
         assert!(!bytecode.is_empty());
     }
